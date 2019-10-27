@@ -1,7 +1,5 @@
 import express, { Application, Request, Response, NextFunction } from "express";
 import { Logger } from "winston";
-
-import db from "../../data/db";
 import { getAllPackages, addPackage, savePackages } from "../../data";
 
 import { errorNames } from "../../constants/predefined_errors";
@@ -11,8 +9,8 @@ import Product from "../../models/pojo/Product";
 
 import {
 	newPackageValidations,
-	deletePackageValidations,
-	updatePackageValidation
+	idCheck,
+	packageAttrValidation
 } from "./middleware";
 
 function getPackageRoutes(app: Application, logger: Logger, envConfig: any) {
@@ -20,7 +18,7 @@ function getPackageRoutes(app: Application, logger: Logger, envConfig: any) {
 
 	packageRoute.get(
 		"/",
-		async (req: Request, res: Response, next: NextFunction) => {
+		async (_: Request, res: Response, next: NextFunction) => {
 			const allPackages = await getAllPackages();
 
 			if (allPackages) {
@@ -30,6 +28,10 @@ function getPackageRoutes(app: Application, logger: Logger, envConfig: any) {
 			}
 		}
 	);
+
+	packageRoute.get("/:id", idCheck, async (req: Request, res: Response, next: NextFunction) => {
+		res.status(200).send(req.body.allPackages[req.body.packageIndex]);
+	});
 
 	packageRoute.post(
 		"/",
@@ -44,7 +46,7 @@ function getPackageRoutes(app: Application, logger: Logger, envConfig: any) {
 
 	packageRoute.delete(
 		"/",
-		deletePackageValidations,
+		idCheck,
 		async (req: Request, res: Response, next: NextFunction) => {
 			try {
 				const allPackages = req.body.allPackages;
@@ -64,9 +66,18 @@ function getPackageRoutes(app: Application, logger: Logger, envConfig: any) {
 
 	packageRoute.put(
 		"/",
-		updatePackageValidation,
+		idCheck,
+		packageAttrValidation,
 		(req: Request, res: Response, next: NextFunction) => {
-			console.log("Hello");
+			const p = req.body.allPackages[req.body.packageIndex];
+			Object.keys(p).forEach((k) => {
+				if (req.body[k] && k !== "products") {
+					p[k] = req.body[k];
+				}
+			});
+
+			savePackages(req.body.allPackages.splice(req.body.index, 1, p));
+			res.status(200).send(p);
 		}
 	);
 

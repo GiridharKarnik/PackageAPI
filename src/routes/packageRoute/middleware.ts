@@ -5,14 +5,10 @@ import Product from "../../models/pojo/Product";
 import { getAllPackages } from "../../data";
 
 import {
-	validateProductName,
-	validateProductDescription
+	validateName,
+	validateDescription
 } from "../../util/validations";
 import { errorNames } from "../../constants/predefined_errors";
-
-function validateProducts(products: Product[]) {
-	return true;
-}
 
 export function newPackageValidations(
 	req: Request,
@@ -28,15 +24,12 @@ export function newPackageValidations(
 	}
 }
 
-export async function deletePackageValidations(
-	req: Request,
-	_: Response,
-	next: NextFunction
-) {
+export async function idCheck(req: Request, res: Response, next: NextFunction) {
 	const id = req.query.id;
 	if (!id) {
 		return next(errorNames.missingOrIncorrectParams);
 	}
+
 	const allPackages = await getAllPackages();
 	const packageIndex = getPackageIndex(id, allPackages);
 
@@ -44,29 +37,32 @@ export async function deletePackageValidations(
 		return next(errorNames.resourceNotFound);
 	}
 
-	req.body.packageIndex = packageIndex;
 	req.body.allPackages = allPackages;
-	return next();
+	req.body.packageIndex = packageIndex;
+
+	next();
 }
 
-export async function updatePackageValidation(
+export async function packageAttrValidation(
 	req: Request,
 	_: Response,
 	next: NextFunction
 ) {
-	const { id } = req.body.id;
-	if (!id) {
-		next(errorNames.missingOrIncorrectParams);
+	const { name, description } = req.body;
+	if (name) {
+		if (!validateName(name)) {
+			next(errorNames.missingOrIncorrectParams);
+			return;
+		}
 	}
 
-	const allPackages = await getAllPackages();
-	const packageIndex = getPackageIndex(id, allPackages);
-	if (packageIndex === -1) {
-		return next(errorNames.resourceNotFound);
+	if (description) {
+		if (!validateDescription(description)) {
+			next(errorNames.missingOrIncorrectParams);
+			return;
+		}
 	}
 
-	req.body.packageIndex = packageIndex;
-	req.body.package = allPackages[packageIndex];
 	next();
 }
 
@@ -90,10 +86,26 @@ function validatePackages(packages: Package[]): boolean {
 function validatePackage(p: Package): boolean {
 	const { name, description, products } = p;
 	return (
-		validateProductName(name) &&
-		validateProductDescription(description) &&
+		validateName(name) &&
+		validateDescription(description) &&
 		validateProducts(products)
 	);
+}
+
+function validateProducts(products: Product[]) {
+	let isValid = true;
+
+	for (const p of products) {
+		if (!validateProduct(p)) {
+			isValid = false;
+			break;
+		}
+	}
+	return isValid;
+}
+
+function validateProduct(product: Product) {
+	return validateName(product.name);
 }
 
 function getPackageIndex(id: string, packages: Package[]) {

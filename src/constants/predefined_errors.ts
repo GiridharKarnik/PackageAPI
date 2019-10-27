@@ -7,6 +7,7 @@ export const errorNames = {
 	passwordDeHashingError: "passwordDeHashingError",
 	missingFCMToken: "missingFCMToken",
 	resourceNotFound: "resourceNotFound",
+	duplicateEntry: "duplicateEntry",
 	authTokenVerificationError: "authTokenVerificationError",
 	missingOrIncorrectParams: "missingOrIncorrectParams",
 	insufficientAuthInformation: "insufficientAuthInformation",
@@ -80,6 +81,12 @@ preDefinedErrors[errorNames.missingOrIncorrectParams] = new ErrorThreeField(
 	401,
 	11,
 	"Missing or incorrect input parameters"
+);
+
+preDefinedErrors[errorNames.missingOrIncorrectParams] = new ErrorThreeField(
+	401,
+	12,
+	"Package with the name already exists."
 );
 
 export const getError = (errorName: string, generatedErrorMessage?: string) => {

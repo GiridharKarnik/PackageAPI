@@ -1,4 +1,7 @@
-export function validateProductName(productName: string) {
+import Package from "../../src/models/pojo/Package";
+import Product from "../../src/models/pojo/Product";
+
+export function validateName(productName: string) {
 	return (
 		productName &&
 		productName.trim() !== "" &&
@@ -6,7 +9,7 @@ export function validateProductName(productName: string) {
 	);
 }
 
-export function validateProductDescription(description: string) {
+export function validateDescription(description: string) {
 	return (
 		description &&
 		description.trim() !== "" &&
