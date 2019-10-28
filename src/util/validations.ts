@@ -92,6 +92,8 @@ export function validateCurrencyFormat(currencyFormat: string) {
 	if (currencyFormat) {
 		if (!supportedCurrencies.includes(currencyFormat.trim())) {
 			return false;
+		} else {
+			return true;
 		}
 	}
 }
