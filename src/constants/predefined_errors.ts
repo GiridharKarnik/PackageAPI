@@ -13,7 +13,9 @@ export const errorNames = {
 	insufficientAuthInformation: "insufficientAuthInformation",
 	serverError: "serverError",
 	unauthorized: "unauthorized",
-	invalidCurrencyFormat: "invalidCurrencyFormat"
+	invalidCurrencyFormat: "invalidCurrencyFormat",
+	invalidCredentials: "invalidCredentials",
+	userAlreadyExists: "userAlreadyExists"
 };
 
 export const preDefinedErrors: { [index: string]: ErrorThreeField } = {};
@@ -63,7 +65,7 @@ preDefinedErrors[errorNames.authTokenVerificationError] = new ErrorThreeField(
 preDefinedErrors[errorNames.insufficientAuthInformation] = new ErrorThreeField(
 	401,
 	8,
-	"Information needed for authentication is not provided. If you are trying to hack, well, FUCK YOU..!!"
+	"Information needed for authentication is not provided."
 );
 
 preDefinedErrors[errorNames.serverError] = new ErrorThreeField(
@@ -90,10 +92,22 @@ preDefinedErrors[errorNames.duplicateProduct] = new ErrorThreeField(
 	"Product with the name already exists, within the specified package"
 );
 
-preDefinedErrors[errorNames.duplicateProduct] = new ErrorThreeField(
+preDefinedErrors[errorNames.invalidCurrencyFormat] = new ErrorThreeField(
 	401,
 	13,
 	"Specified currency is not supported. Please try using a different currency type"
+);
+
+preDefinedErrors[errorNames.invalidCredentials] = new ErrorThreeField(
+	401,
+	14,
+	"Invalid user name or password."
+);
+
+preDefinedErrors[errorNames.userAlreadyExists] = new ErrorThreeField(
+	401,
+	15,
+	"User already exists"
 );
 
 export const getError = (errorName: string, generatedErrorMessage?: string) => {

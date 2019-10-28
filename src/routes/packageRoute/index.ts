@@ -17,8 +17,12 @@ import {
 	duplicateProductCheck
 } from "./middleware";
 
+import tokenGateway from "../../globalMiddleware/tokenGateway.middleware";
+
 function getPackageRoutes(app: Application, logger: Logger, envConfig: any) {
 	const packageRoute = express.Router();
+
+	tokenGateway(packageRoute, app);
 
 	packageRoute.get(
 		"/",

@@ -7,11 +7,11 @@ class Package {
 	public description: string;
 	public products: Product[];
 
-	constructor(name: string, description: string, products: Product[]) {
+	constructor(name: string, description: string, products?: Product[]) {
 		this.id = uuid.v1();
 		this.name = name;
 		this.description = description;
-		this.products = products;
+		this.products = products || null;
 	}
 }
 

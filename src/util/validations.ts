@@ -4,19 +4,21 @@ import Product from "../../src/models/pojo/Product";
 import supportedCurrencies from "../constants/supportedCurrencies";
 
 export function validateName(productName: string) {
-	return (
-		productName &&
-		productName.trim() !== "" &&
-		productName.trim().length > 2
-	);
+	if (productName) {
+		return (productName.trim() !== "" &&
+			productName.trim().length > 2);
+	} else {
+		return false;
+	}
 }
 
 export function validateDescription(description: string) {
-	return (
-		description &&
-		description.trim() !== "" &&
-		description.trim().length > 2
-	);
+	if (description) {
+		return (description.trim() !== "" &&
+			description.trim().length > 2);
+	} else {
+		return false;
+	}
 }
 
 export function validatePackages(packages: Package[]) {
@@ -51,7 +53,7 @@ export function validatePackage(p: Package) {
 				break;
 			}
 			case "products": {
-				if (!validateProducts(p.products)) {
+				if (p.products && !validateProducts(p.products)) {
 					isValid = false;
 				}
 				break;

@@ -11,10 +11,7 @@ import {
 	validateProducts
 } from "../../util/validations";
 
-import { convertToUSD } from "../../util/currencyConverter";
-
 import { errorNames } from "../../constants/predefined_errors";
-import supportedCurrencies from "../../constants/supportedCurrencies";
 
 export function newPackageValidations(
 	req: Request,

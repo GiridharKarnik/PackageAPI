@@ -15,14 +15,16 @@ const envConfigs: { [index: string]: any } = {
 		db: "mongodb://localhost:27017/package_project",
 		host: "127.0.0.1",
 		port: process.env.PORT || 3030,
-		env: "dev",
+		env: "test",
 		logLevel: "debug"
 	},
-	productionServer: {
+	prod: {
 		rootPath,
-		db: "<replace with production DB endpoint>",
-		host: "*",
-		port: process.env.PORT || 3030
+		db: "mongodb://writer:Password1@localhost:27017/package_project",
+		host: "127.0.0.1",
+		port: process.env.PORT || 3030,
+		env: "prod",
+		logLevel: "debug"
 	}
 };
 

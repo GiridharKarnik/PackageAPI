@@ -2,6 +2,7 @@ import { Application, Request, Response, NextFunction } from "express";
 
 import { errorNames } from "../constants/predefined_errors";
 import logger from "winston";
+import jwt from "jsonwebtoken";
 
 export default (secureRoute: any, app: Application) => {
 	secureRoute.use((req: Request, res: Response, next: NextFunction) => {
@@ -9,10 +10,15 @@ export default (secureRoute: any, app: Application) => {
 		const token =
 			req.body.token || req.query.token || req.headers["x-access-token"];
 
-		const uid = req.body.uid || req.query.uid || req.headers.uid;
-
-		if (token && uid) {
+		if (token) {
 			//verify whether the received token is valid
+			jwt.verify(token, 'private_key', (err: any, decoded: any) => {
+				if (err) {
+					next(errorNames.unauthorized);
+				} else {
+					next();
+				}
+			});
 		} else {
 			//if there is not token
 			if (

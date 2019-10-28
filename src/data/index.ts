@@ -1,6 +1,7 @@
 import fs from "fs";
 import * as path from "path";
 import Package from "../../src/models/pojo/Package";
+import User from "../../src/models/pojo/User";
 
 export function getAllPackages(): Promise<[Package]> {
 	return new Promise((resolve, reject) => {
@@ -70,5 +71,106 @@ export function savePackages(packages: Package[] | Package) {
 				resolve();
 			}
 		});
+	});
+}
+
+export function readAllUsersFromDB(): Promise<User[]> {
+	return new Promise((resolve, reject) => {
+		fs.readFile(
+			path.resolve(__dirname, "./auth.json"),
+			"utf8",
+			(err, jsonString) => {
+				if (err) {
+					reject(err.message);
+				} else {
+					try {
+						const db = JSON.parse(jsonString);
+						const users = db.users;
+						resolve(users);
+					} catch (err) {
+						reject(err.message);
+					}
+				}
+			}
+		);
+	});
+}
+
+export async function saveUserToDB(userName: string, hashedPassword: string): Promise<void> {
+	const users = await readAllUsersFromDB();
+
+	users.push({
+		userName,
+		hashedPassword
+	});
+
+	const jsonString = JSON.stringify({ users });
+
+	return new Promise((resolve, reject) => {
+		fs.writeFile(path.resolve(__dirname, "./auth.json"), jsonString, err => {
+			if (err) {
+				reject(err.message);
+			} else {
+				resolve();
+			}
+		});
+	});
+}
+
+export function getPasswordForUser(userName: string): Promise<string> {
+	return new Promise((resolve, reject) => {
+		fs.readFile(
+			path.resolve(__dirname, "./auth.json"),
+			"utf8",
+			(err, jsonString) => {
+				if (err) {
+					reject(err.message);
+				} else {
+					try {
+						const db = JSON.parse(jsonString);
+						const users = db.users;
+
+						if (users && users.length > 0) {
+							const hashedPassword = getHashedPassword(users, userName);
+							resolve(hashedPassword);
+						} else {
+							reject();
+						}
+					} catch (err) {
+						reject(err.message);
+					}
+				}
+			}
+		);
+	});
+}
+
+function getHashedPassword(users: User[], name: string): string {
+	const foundUser = users.find((user) => {
+		return user.userName === name;
+	});
+
+	return foundUser.hashedPassword;
+}
+
+export function getAllUsers(): Promise<User[]> {
+	return new Promise((resolve, reject) => {
+		fs.readFile(
+			path.resolve(__dirname, "./auth.json"),
+			"utf8",
+			(err, jsonString) => {
+				if (err) {
+					reject(err.message);
+				} else {
+					try {
+						const db = JSON.parse(jsonString);
+						const users = db.users;
+						resolve(users);
+					} catch (err) {
+						reject(err.message);
+					}
+				}
+			}
+		);
 	});
 }

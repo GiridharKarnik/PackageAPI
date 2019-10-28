@@ -4,7 +4,6 @@ import { EXCHANGE_RATES_API } from "../constants/publicAPIs";
 import supportedCurrencies from "../constants/supportedCurrencies";
 import Package from "../../src/models/pojo/Package";
 import Product from "../../src/models/pojo/Product";
-import { resolve } from "url";
 
 export function obtainExchangeRates(): Promise<any> {
 
