@@ -4,6 +4,8 @@ class Product {
 	public id: string;
 	public name: string;
 	public usdPrice: number;
+	public price: number;
+	public currencyFormat: string;
 
 	constructor(name: string, usdPrice: number) {
 		this.id = uuid.v1();

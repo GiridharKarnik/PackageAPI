@@ -6,9 +6,15 @@ import { getAllPackages } from "../../data";
 
 import {
 	validateName,
-	validateDescription
+	validateDescription,
+	validatePackages,
+	validateProducts
 } from "../../util/validations";
+
+import { convertToUSD } from "../../util/currencyConverter";
+
 import { errorNames } from "../../constants/predefined_errors";
+import supportedCurrencies from "../../constants/supportedCurrencies";
 
 export function newPackageValidations(
 	req: Request,
@@ -48,7 +54,7 @@ export async function packageAttrValidation(
 	_: Response,
 	next: NextFunction
 ) {
-	const { name, description } = req.body;
+	const { name, description, products } = req.body;
 	if (name) {
 		if (!validateName(name)) {
 			next(errorNames.missingOrIncorrectParams);
@@ -63,49 +69,33 @@ export async function packageAttrValidation(
 		}
 	}
 
+	if (products) {
+		if (!validateProducts(products)) {
+			next(errorNames.missingOrIncorrectParams);
+			return;
+		}
+	}
+
 	next();
 }
 
-function validatePackages(packages: Package[]): boolean {
-	if (!packages || packages.length === 0) {
-		return false;
-	}
+export async function duplicateProductCheck(req: Request, res: Response, next: NextFunction) {
+	const { products } = req.body;
 
-	let isValid = true;
-
-	for (const p of packages) {
-		if (!validatePackage(p)) {
-			isValid = false;
-			break;
+	if (products && products.length > 0) {
+		const p = req.body.allPackages[req.body.packageIndex];
+		if (p.products && p.products.length > 0) {
+			for (const newProduct of products) {
+				for (const ep of p.products) {
+					if (newProduct.name === ep.name) {
+						return next(errorNames.duplicateProduct);
+					}
+				}
+			}
 		}
 	}
 
-	return isValid;
-}
-
-function validatePackage(p: Package): boolean {
-	const { name, description, products } = p;
-	return (
-		validateName(name) &&
-		validateDescription(description) &&
-		validateProducts(products)
-	);
-}
-
-function validateProducts(products: Product[]) {
-	let isValid = true;
-
-	for (const p of products) {
-		if (!validateProduct(p)) {
-			isValid = false;
-			break;
-		}
-	}
-	return isValid;
-}
-
-function validateProduct(product: Product) {
-	return validateName(product.name);
+	next();
 }
 
 function getPackageIndex(id: string, packages: Package[]) {

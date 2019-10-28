@@ -7,12 +7,13 @@ export const errorNames = {
 	passwordDeHashingError: "passwordDeHashingError",
 	missingFCMToken: "missingFCMToken",
 	resourceNotFound: "resourceNotFound",
-	duplicateEntry: "duplicateEntry",
+	duplicateProduct: "duplicateProduct",
 	authTokenVerificationError: "authTokenVerificationError",
 	missingOrIncorrectParams: "missingOrIncorrectParams",
 	insufficientAuthInformation: "insufficientAuthInformation",
 	serverError: "serverError",
-	unauthorized: "unauthorized"
+	unauthorized: "unauthorized",
+	invalidCurrencyFormat: "invalidCurrencyFormat"
 };
 
 export const preDefinedErrors: { [index: string]: ErrorThreeField } = {};
@@ -83,10 +84,16 @@ preDefinedErrors[errorNames.missingOrIncorrectParams] = new ErrorThreeField(
 	"Missing or incorrect input parameters"
 );
 
-preDefinedErrors[errorNames.missingOrIncorrectParams] = new ErrorThreeField(
+preDefinedErrors[errorNames.duplicateProduct] = new ErrorThreeField(
 	401,
 	12,
-	"Package with the name already exists."
+	"Product with the name already exists, within the specified package"
+);
+
+preDefinedErrors[errorNames.duplicateProduct] = new ErrorThreeField(
+	401,
+	13,
+	"Specified currency is not supported. Please try using a different currency type"
 );
 
 export const getError = (errorName: string, generatedErrorMessage?: string) => {

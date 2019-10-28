@@ -3,14 +3,18 @@ import { Logger } from "winston";
 import { getAllPackages, addPackage, savePackages } from "../../data";
 
 import { errorNames } from "../../constants/predefined_errors";
+import supportedCurrencies from "../../constants/supportedCurrencies";
 
 import Package from "../../models/pojo/Package";
 import Product from "../../models/pojo/Product";
 
+import { normalizePriceForPackages, normalizePriceForProducts } from "../../util/currencyConverter";
+
 import {
 	newPackageValidations,
 	idCheck,
-	packageAttrValidation
+	packageAttrValidation,
+	duplicateProductCheck
 } from "./middleware";
 
 function getPackageRoutes(app: Application, logger: Logger, envConfig: any) {
@@ -37,8 +41,7 @@ function getPackageRoutes(app: Application, logger: Logger, envConfig: any) {
 		"/",
 		newPackageValidations,
 		async (req: Request, res: Response, next: NextFunction) => {
-			const packages = composePackages(req.body.packages);
-
+			const packages = await composePackages(req.body.packages);
 			await addPackage(packages);
 			res.status(201).send(packages);
 		}
@@ -68,15 +71,22 @@ function getPackageRoutes(app: Application, logger: Logger, envConfig: any) {
 		"/",
 		idCheck,
 		packageAttrValidation,
-		(req: Request, res: Response, next: NextFunction) => {
+		duplicateProductCheck,
+		async (req: Request, res: Response, next: NextFunction) => {
 			const p = req.body.allPackages[req.body.packageIndex];
-			Object.keys(p).forEach((k) => {
-				if (req.body[k] && k !== "products") {
-					p[k] = req.body[k];
-				}
-			});
+			const properties = Object.keys(p);
 
-			savePackages(req.body.allPackages.splice(req.body.index, 1, p));
+			for (const property of properties) {
+				if (req.body[property] === "products") {
+					const newProducts = await normalizePriceForProducts(req.body.products);
+					p[property] = [...p.products, ...newProducts];
+				} else if (req.body[property]) {
+					p[property] = req.body[property];
+				}
+			}
+
+			const updatedPackages = req.body.allPackages.splice(req.body.index, 1, p);
+			await savePackages(updatedPackages);
 			res.status(200).send(p);
 		}
 	);
@@ -84,10 +94,14 @@ function getPackageRoutes(app: Application, logger: Logger, envConfig: any) {
 	return packageRoute;
 }
 
-function composePackages(packages: Package[]) {
-	return packages.map(p => {
+async function composePackages(packages: Package[]) {
+	const usdPricedPackages = await normalizePriceForPackages(packages);
+
+	const newPackages = usdPricedPackages.map(p => {
 		return new Package(p.name, p.description, composeProducts(p.products));
 	});
+
+	return newPackages;
 }
 
 function composeProducts(products: Product[]): Product[] {
