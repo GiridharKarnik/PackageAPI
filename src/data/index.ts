@@ -134,7 +134,7 @@ export function getPasswordForUser(userName: string): Promise<string> {
 							const hashedPassword = getHashedPassword(users, userName);
 							resolve(hashedPassword);
 						} else {
-							reject();
+							resolve(null);
 						}
 					} catch (err) {
 						reject(err.message);

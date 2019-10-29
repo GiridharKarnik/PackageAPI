@@ -35,7 +35,17 @@ function getUserRoutes(app: Application, logger: Logger, envConfig: any) {
 			return next(errorNames.missingOrIncorrectParams);
 		}
 
-		const storedHashedPassword = await getPasswordForUser(userName);
+		let storedHashedPassword = null;
+		try {
+			storedHashedPassword = await getPasswordForUser(userName);
+			if (!storedHashedPassword) {
+				return next(errorNames.invalidCredentials);
+			}
+		} catch (error) {
+			logger.error("error reading from database");
+			return next(errorNames.dbReadError);
+		}
+
 		compare(storedHashedPassword, password).then(() => {
 			res.status(200).send({ jwt: jwt.sign({ userName }, "private_key") });
 		}).catch((err) => {

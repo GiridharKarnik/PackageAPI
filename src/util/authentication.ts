@@ -16,7 +16,7 @@ export const hash = async (password: string): Promise<string> => {
 	});
 };
 
-export const compare = (hash: string, password: string): Promise<string> => {
+export const compare = (hash: string, password: string): Promise<boolean> => {
 	return new Promise((resolve, reject) => {
 		bcrypt.compare(password, hash, (error, result) => {
 			if (error) {
@@ -24,9 +24,9 @@ export const compare = (hash: string, password: string): Promise<string> => {
 				reject(error);
 			} else {
 				if (!result) {
-					reject();
+					resolve(false);
 				} else {
-					resolve();
+					resolve(true);
 				}
 			}
 		});
